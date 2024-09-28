@@ -1,5 +1,6 @@
 
 import Navbar from './components/Navbar'
+import Button from './components/Button'
 
 import Joystick from './components/Joystick'
 function App() {
