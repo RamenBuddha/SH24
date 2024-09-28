@@ -1,31 +1,23 @@
+import MessageContext from "./MessageContext";
+import { useState, useEffect, useContext} from "react"
 
-import { useState, useEffect} from "react"
+const Button = ({id, isListening, setListeningButton}) => {
+    const {message,setMessage} = useContext(MessageContext);
 
-const Button = (key) => {
-    const[bind,setBind] = useState("");
-    const [isListening, setIsListening] = useState(false);
+    const[bind,setBind] = useState("N/A");
 
     const handleClick = () => {
-        setIsListening(true);
-    }
-
-    const handleKeyPress = (event) => {
-        if (isListening) {
-            if (event.key === " "){
-                setBind("Space".toUpperCase());
-            } else{
-                setBind(event.key.toUpperCase());
-            }
-        }
-        setIsListening(false);
+        setMessage('');
+        setListeningButton(id);
     }
 
     useEffect(() => {
-        window.addEventListener("keydown", handleKeyPress);
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-          };
-    }, [isListening])
+        if (isListening && message) {
+            setBind(message);
+            setListeningButton(null);
+            setMessage('');
+        }
+    }, [isListening, setListeningButton, setMessage, message])
 
     return (
         <>
