@@ -1,8 +1,8 @@
-
 import Navbar from './components/Navbar'
 import Button from './components/Button'
-
 import Joystick from './components/Joystick'
+import Key from './components/Key'
+
 function App() {
   return (
     <>
@@ -18,8 +18,22 @@ function App() {
         </div>
       </div>
 
-      <div className="w-screen h-[50vh] bg-slate-100">
-
+      <div className="items-center grid grid-cols-6 justify-center w-screen h-[50vh] bg-slate-100 space-x">
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        <Key></Key>
+        
       </div>
     </>
   )
