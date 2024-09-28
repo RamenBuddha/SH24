@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 @keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0; }
-    100% { opacity: 1; }
+    0% { opacity: 1; transform:scale(1.1);}
+    25% { opacity: 0.5; transform:scale(1);}
+    50% { opacity: 1; transform:scale(1.1);}
+    75% { opacity: 0.5; transform:scale(1)}
+    100% { opacity: 1; transform: scale(1.1);}
 }
 
 .animate-blink {
-    animation: blink 1s infinite;
+    animation: blink 3s infinite;
 }
