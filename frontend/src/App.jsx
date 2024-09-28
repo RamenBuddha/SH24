@@ -1,23 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import Navbar from './components/Navbar'
 import Button from './components/Button'
 
+import Joystick from './components/Joystick'
 function App() {
   return (
     <>
-    <Navbar></Navbar>
-    <div className='absolute top-0, left-0 w-full mt-6 border-2 border-black h-[40rem] flex justify-evenly space-x-4 items-center'>
-      <div className="flex-col space-y-4">
-      <Button></Button>
-      <Button></Button>
+      <Navbar></Navbar>
+
+      <div className=" w-screen h-[50vh] bg-yellow-500 ">
+
       </div>
-      <div className="flex-col space-y-4">
-      <Button></Button>
-      <Button></Button>
+
+      <div className="w-screen h-[50vh] bg-blue-500">
+
       </div>
-    </div>
     </>
   )
 }

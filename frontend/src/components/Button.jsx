@@ -1,3 +1,4 @@
+
 import { useState, useEffect} from "react"
 
 const Button = (key) => {
@@ -30,7 +31,8 @@ const Button = (key) => {
         <>
         <button onClick={handleClick} className="rounded-full border-2 p-2 w-16 h-16 border-black flex items-center justify-center">
         {bind}
-        </button>        </>
+        </button>        
+        </>
     )
 }
 export default Button
