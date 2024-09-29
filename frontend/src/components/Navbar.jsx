@@ -14,7 +14,10 @@ const Navbar = () => {
         <div className="flex items-center">
         <span className="hover:cursor-pointer hover:transition duration-350 ease-in-out hover:text-slate-400 font-bold text-white text-left">🎮 OpenController</span>
         </div>
-        <button onClick ={handleClick} className="transition-transform hover:scale-105 rounded-sm px-6 py-2 bg-white hover:cursor-pointer hover:transition duration-350 ease-in-out font-bold text-black">Export</button>
+        <div className="flex item-center">
+        <button onClick ={handleClick} className="transition-transform hover:scale-105 rounded-sm px-6 py-2 bg-white hover:cursor-pointer hover:transition duration-350 ease-in-out font-bold text-black">Write to Controller</button>
+        <button onClick ={handleClick} className="ml-4 transition-transform hover:scale-105 rounded-sm px-6 py-2 bg-white hover:cursor-pointer hover:transition duration-350 ease-in-out font-bold text-black">Export</button>
+        </div>
         </header>        
         </>
     )
