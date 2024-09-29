@@ -14,37 +14,36 @@ function App() {
     bottom: '0px',
   });
 
-  // Function to handle downArrow press and update the style
   const handleDownArrowPress = () => {
     setStyleProps({
       right: '0px',
-      top: '70px',   // Move the circle down by 50px
+      top: '70px',
       left: '31px',
-      bottom: '0px' // Update bottom if needed
+      bottom: '0px'
     });
   };
   const handleUpArrowPress = () => {
     setStyleProps({
       right: '0px',
-      top: '-5px',   // Move the circle down by 50px
+      top: '-5px',
       left: '31px',
-      bottom: '0px' // Update bottom if needed
+      bottom: '0px'
     });
   };
   const handleLeftArrowPress = () => {
     setStyleProps({
       right: '0px',
-      top: '32px',   // Move the circle down by 50px
+      top: '32px',
       left: '-5px',
-      bottom: '0px' // Update bottom if needed
+      bottom: '0px'
     });
   };
   const handleRightArrowPress = () => {
     setStyleProps({
       right: '0px',
-      top: '32px',   // Move the circle down by 50px
+      top: '32px',
       left: '70px',
-      bottom: '0px' // Update bottom if needed
+      bottom: '0px'
     });
   };
   let keys = [
@@ -253,10 +252,6 @@ function App() {
     });
   };
 
-  // Handle pressing the arrow buttons and update move direction
-  const handleArrowPress = (direction) => {
-    setMoveDirection(direction); // Pass the direction ('left' or 'right') to Joystick
-  };
 
   return (
     <>
@@ -268,7 +263,7 @@ function App() {
             <div className="relative flex items-center justify-center" style={{ height: '200px', width: '200px' }}>
               <Joystick styleProps={styleProps}></Joystick>
               {/* Arrow Buttons Positioned Around Joystick with more spacing */}
-              <div className="absolute" style={{ top: '-36px' }}> {/* Top Arrow with extra space */}
+              <div className="absolute" style={{ top: '-36px' }}>
                 <Button
                   onClick={handleUpArrowPress}
                   key="upArrow"
@@ -321,7 +316,6 @@ function App() {
           </div>
 
           <div className='grid grid-rows-2 grid-cols-3 gap-4'>
-            {/* Rendering other keybind buttons */}
             {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
               <Button
                 key={button.id}
