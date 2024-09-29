@@ -1,4 +1,3 @@
-
 const Joystick = () => {
     return (
         <div className="w-32 h-32 bg-black rounded-full flex items-center justify-center">

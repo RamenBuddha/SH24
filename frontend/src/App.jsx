@@ -28,11 +28,16 @@ function App() {
     {id: "whiteButton", bind: "N/A"},
   ])
 
-  const createButtonsJson = () => {
+  const createData = () =>{
     const data = buttons.reduce((acc, button) => {
       acc[button.id] = button.bind; 
       return acc;
     }, {});
+    return data;
+  }
+
+  const createButtonsJson = () => {
+    const data = createData();
     const jsonData = JSON.stringify(data, null, 2)
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -45,6 +50,21 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const sendToDevice = async (jsonData) => {
+    try {
+        const port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 9600 });
+        const jsonString = JSON.stringify(jsonData);
+        const encoder = new TextEncoder();
+        const writer = port.writable.getWriter();
+        await writer.write(encoder.encode(jsonString));
+        writer.releaseLock();
+        await port.close();
+    } catch (error) {
+        console.error('Error during serial communication:', error);
+    }
+}
+
   const updateButtonBind = (id, newBind) => {
     setButtons((prevButtons) =>
       prevButtons.map((button) =>
@@ -55,7 +75,7 @@ function App() {
 
   return (
     <>
-      <MessageContext.Provider value={{ createButtonsJson, message, setMessage }}>
+      <MessageContext.Provider value={{createData, sendToDevice,createButtonsJson, message, setMessage }}>
         <Navbar></Navbar>
         <div id="topDiv" className=" w-screen h-[50vh] bg-white flex justify-evenly items-center">
           <div className='flex'>
