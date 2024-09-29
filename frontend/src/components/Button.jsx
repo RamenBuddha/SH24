@@ -2,7 +2,7 @@ import MessageContext from "./MessageContext";
 import { useState, useEffect, useContext } from "react"
 
 
-const Button = ({ id, bind, isListening, setListeningButton, updateButtonBind }) => {
+const Button = ({ id, bind, isListening, setListeningButton, updateButtonBind, onClick }) => {
     const { message, setMessage } = useContext(MessageContext);
 
     const [isBlinking, setIsBlinking] = useState(false);
@@ -11,6 +11,9 @@ const Button = ({ id, bind, isListening, setListeningButton, updateButtonBind })
         setMessage('');
         setListeningButton(id);
         setIsBlinking(true);
+        if (onClick) {
+            onClick();
+        }
     }
 
     useEffect(() => {
@@ -23,8 +26,8 @@ const Button = ({ id, bind, isListening, setListeningButton, updateButtonBind })
     }, [message, isListening, id, updateButtonBind, setListeningButton, setMessage])
 
     const getColor = () => {
-        let color = id.slice(0,id.indexOf("Button"))
-        switch (color){
+        let color = id.slice(0, id.indexOf("Button"))
+        switch (color) {
             case "red":
                 return "bg-red-200"
             case "blue":
@@ -36,7 +39,7 @@ const Button = ({ id, bind, isListening, setListeningButton, updateButtonBind })
             case "white":
                 return "bg-slate-200"
         }
-        
+
     }
 
     return (
