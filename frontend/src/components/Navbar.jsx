@@ -14,7 +14,17 @@ const Navbar = () => {
 
     const handleClick2 = () =>{
         const data = createData();
-        sendToDevice(data);
+        let go = true;
+        data.forEach(([key,val]) => {
+          if (val === "N/A") {
+            go = false;
+          }
+        });
+        if (go) {
+            sendToDevice(data);
+        } else{
+            console.log("Please fill out all binds!")
+        }
     }
 
     return (
