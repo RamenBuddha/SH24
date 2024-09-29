@@ -21,9 +21,9 @@ function App() {
   const [listeningButton, setListeningButton] = useState(null);
 
   const [buttons, setButtons] = useState([
-    { id:1, bind: "N/A"},
-    { id: 2, bind: "N/A"},
-    {id: 3, bind: "N/A"}
+    { id: 1, bind: "N/A" },
+    { id: 2, bind: "N/A" },
+    { id: 3, bind: "N/A" }
   ])
 
   const createButtonsJson = () => {
@@ -52,9 +52,7 @@ function App() {
       <MessageContext.Provider value={{ createButtonsJson, message, setMessage }}>
         <Navbar></Navbar>
         <div id="topDiv" className=" w-screen h-[50vh] bg-white flex justify-evenly items-center">
-          <div className='flex'>
-            <Joystick></Joystick>
-          </div>
+          <Joystick></Joystick>
           <div className='grid grid-rows-2 grid-cols-2 gap-4'>
             {buttons.map((button) => (
               <Button
