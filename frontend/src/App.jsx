@@ -144,19 +144,20 @@ function App() {
   const [listeningButton, setListeningButton] = useState(null);
 
   const [moveDirection, setMoveDirection] = useState(null); // Track which direction is pressed
-
+  const obj = getObjectFromCookie("c")
   // Create buttons including arrow buttons
-  const [buttons, setButtons] = useState([
-    { id: "redButton", bind: "N/A" },
+  const [buttons, setButtons] = useState(obj != null? obj:
+    [{ id: "redButton", bind: "N/A" },
     { id: "greenButton", bind: "N/A" },
     { id: "yellowButton", bind: "N/A" },
     { id: "blueButton", bind: "N/A" },
     { id: "whiteButton", bind: "N/A" },
-    { id: "leftArrow", bind: "<" },
-    { id: "rightArrow", bind: ">" },
-    { id: "downArrow", bind: "v" },
-    { id: "upArrow", bind: "^" },
-  ]);
+    { id: "leftArrow", bind: 216 },
+    { id: "rightArrow", bind: 215 },
+    { id: "downArrow", bind: 217 },
+    { id: "upArrow", bind: 218 },
+  ]
+    );
 
   const createData = () => {
     const data = buttons.reduce((acc, button) => {
@@ -225,47 +226,45 @@ function App() {
           <div className="relative flex flex-col justify-center items-center">
             {/* Arrow Controls */}
             <div className="relative flex items-center justify-center" style={{ height: '200px', width: '200px' }}>
-              <Joystick moveDirection={moveDirection} />
-
               {/* Arrow Buttons Positioned Around Joystick with more spacing */}
-              <div className="absolute" style={{ top: '-30px' }}> {/* Top Arrow with extra space */}
+              <div className="absolute" style={{ top: '-10px' }}> {/* Top Arrow with extra space */}
                 <Button
                   key="upArrow"
                   id="upArrow"
-                  bind={buttons.find(b => b.id === "upArrow").bind}
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "upArrow").bind)}
                   isListening={listeningButton === "upArrow"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
 
-              <div className="absolute" style={{ bottom: '-30px' }}> {/* Bottom Arrow with extra space */}
+              <div className="absolute" style={{ bottom: '-10px' }}> {/* Bottom Arrow with extra space */}
                 <Button
                   key="downArrow"
                   id="downArrow"
-                  bind={buttons.find(b => b.id === "downArrow").bind}
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "downArrow").bind)}
                   isListening={listeningButton === "downArrow"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
 
-              <div className="absolute" style={{ left: '-30px' }}> {/* Left Arrow with extra space */}
+              <div className="absolute" style={{ left: '-10px' }}> {/* Left Arrow with extra space */}
                 <Button
                   key="leftArrow"
                   id="leftArrow"
-                  bind={buttons.find(b => b.id === "leftArrow").bind}
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "leftArrow").bind)}
                   isListening={listeningButton === "leftArrow"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
 
-              <div className="absolute" style={{ right: '-30px' }}> {/* Right Arrow with extra space */}
+              <div className="absolute" style={{ right: '-10px' }}> {/* Right Arrow with extra space */}
                 <Button
                   key="rightArrow"
                   id="rightArrow"
-                  bind={buttons.find(b => b.id === "rightArrow").bind}
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "rightArrow").bind)}
                   isListening={listeningButton === "rightArrow"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
@@ -274,7 +273,7 @@ function App() {
             </div>
           </div>
 
-          <div className='grid grid-rows-2 grid-cols-2 gap-4'>
+          <div className='grid grid-rows-2 grid-cols-3 gap-4'>
             {/* Rendering other keybind buttons */}
             {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
               <Button
