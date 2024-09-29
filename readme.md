@@ -9,6 +9,9 @@ Offering an affordable, open way for people with disabilities to enjoy the games
 ### Prerequisites
 
 - **Node.js**: Download and install Node.js from [here](https://nodejs.org/).
+- **PlatformIO**: Download and install PlatformIO (Core or IDE is fine) from [here](https://platformio.org/).
+- **Arduino Micro**: Grab an Arduino Micro from [here](https://store.arduino.cc/products/arduino-micro).
+     - You should be able to use any off-the-shelf button or joystick, provided that it's compatible with the Arduino Micro. Be sure to connect the pins according to the pins in `arduino-code/src/main.cpp`.
 
 ### Steps
 
@@ -24,7 +27,7 @@ Offering an affordable, open way for people with disabilities to enjoy the games
    ```bash
    npm install
    ```
-### Build and run Arduino code
+4. **Build and run Arduino code**
 ```
 cd arduino_prog
 pio run -e micro -t upload
