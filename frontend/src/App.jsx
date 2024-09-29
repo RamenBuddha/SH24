@@ -5,10 +5,6 @@ import Key from './components/Key'
 import MessageContext from './components/MessageContext'
 import { getObjectFromCookie, setObjectAsCookie } from './scripts/cookies'
 import { useState } from 'react'
-import Arrowdown from './components/Arrowdown'
-import Arrowleft from './components/Arrowleft'
-import Arrowright from './components/Arrowright'
-import Arrowtop from './components/Arrowtop'
 
 function App() {
   let keys = [
@@ -147,13 +143,19 @@ function App() {
   const [message, setMessage] = useState('');
   const [listeningButton, setListeningButton] = useState(null);
 
-  const restore = getObjectFromCookie("c");
-  const [buttons, setButtons] = useState(restore != null ? restore : [
+  const [moveDirection, setMoveDirection] = useState(null); // Track which direction is pressed
+
+  // Create buttons including arrow buttons
+  const [buttons, setButtons] = useState([
     { id: "redButton", bind: "N/A" },
     { id: "greenButton", bind: "N/A" },
     { id: "yellowButton", bind: "N/A" },
     { id: "blueButton", bind: "N/A" },
     { id: "whiteButton", bind: "N/A" },
+    { id: "leftArrow", bind: "<" },
+    { id: "rightArrow", bind: ">" },
+    { id: "downArrow", bind: "v" },
+    { id: "upArrow", bind: "^" },
   ]);
 
   const createData = () => {
@@ -162,7 +164,7 @@ function App() {
       return acc;
     }, {});
     return data;
-  }
+  };
 
   const createButtonsJson = () => {
     const data = createData();
@@ -177,15 +179,11 @@ function App() {
       const blob = new Blob([jsonData], { type: "application/json" });
       const url = URL.createObjectURL(blob);
 
-
       const a = document.createElement("a");
       a.href = url;
       a.download = "buttons_data.json";
       a.click();
       URL.revokeObjectURL(url);
-    }
-    else {
-      console.log("Please fill out all binds!")
     }
   };
 
@@ -202,7 +200,7 @@ function App() {
     } catch (error) {
       console.error('Error during serial communication:', error);
     }
-  }
+  };
 
   const updateButtonBind = (id, newBind) => {
     setButtons((prevButtons) => {
@@ -214,35 +212,71 @@ function App() {
     });
   };
 
+  // Handle pressing the arrow buttons and update move direction
+  const handleArrowPress = (direction) => {
+    setMoveDirection(direction); // Pass the direction ('left' or 'right') to Joystick
+  };
+
   return (
     <>
       <MessageContext.Provider value={{ createData, sendToDevice, createButtonsJson, message, setMessage }}>
-        <Navbar></Navbar>
+        <Navbar />
         <div id="topDiv" className="w-screen h-[50vh] bg-white flex justify-evenly items-center">
           <div className="relative flex flex-col justify-center items-center">
             {/* Arrow Controls */}
-            <div className="flex flex-col items-center justify-center">
-              {/* Top Arrow */}
-              <Arrowtop />
+            <div className="relative flex items-center justify-center" style={{ height: '200px', width: '200px' }}>
+              <Joystick moveDirection={moveDirection} />
 
-              <div className="flex justify-center items-center space-x-4">
-                {/* Left Arrow */}
-                <Arrowleft />
-
-                {/* Joystick in the center */}
-                <Joystick className="bg-gray-400 w-24 h-24 flex items-center justify-center" />
-
-                {/* Right Arrow */}
-                <Arrowright />
+              {/* Arrow Buttons Positioned Around Joystick with more spacing */}
+              <div className="absolute" style={{ top: '-30px' }}> {/* Top Arrow with extra space */}
+                <Button
+                  key="upArrow"
+                  id="upArrow"
+                  bind={buttons.find(b => b.id === "upArrow").bind}
+                  isListening={listeningButton === "upArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
               </div>
 
-              {/* Bottom Arrow */}
-              <Arrowdown />
+              <div className="absolute" style={{ bottom: '-30px' }}> {/* Bottom Arrow with extra space */}
+                <Button
+                  key="downArrow"
+                  id="downArrow"
+                  bind={buttons.find(b => b.id === "downArrow").bind}
+                  isListening={listeningButton === "downArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+
+              <div className="absolute" style={{ left: '-30px' }}> {/* Left Arrow with extra space */}
+                <Button
+                  key="leftArrow"
+                  id="leftArrow"
+                  bind={buttons.find(b => b.id === "leftArrow").bind}
+                  isListening={listeningButton === "leftArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+
+              <div className="absolute" style={{ right: '-30px' }}> {/* Right Arrow with extra space */}
+                <Button
+                  key="rightArrow"
+                  id="rightArrow"
+                  bind={buttons.find(b => b.id === "rightArrow").bind}
+                  isListening={listeningButton === "rightArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
             </div>
           </div>
 
           <div className='grid grid-rows-2 grid-cols-2 gap-4'>
-            {buttons.map((button) => (
+            {/* Rendering other keybind buttons */}
+            {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
               <Button
                 key={button.id}
                 id={button.id}
@@ -255,20 +289,18 @@ function App() {
           </div>
         </div>
 
-
-        <div className="flex justify-center items-center w-screen h-[50vh] bg-slate-100 space-x-1">
+        <div className="flex justify-center items-center w-screen h-[50vh] bg-slate-300 space-x-1">
           {keyChunks.map((chunk, index) => (
             <div key={index} className="flex flex-col">
               {chunk.map((key) => (
-                <Key label={key}>
-                </Key>
+                <Key label={key} key={key} />
               ))}
             </div>
           ))}
         </div>
       </MessageContext.Provider >
     </>
-  )
+  );
 }
 
-export default App
+export default App;
