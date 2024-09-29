@@ -8,16 +8,16 @@ import { useState } from 'react'
 
 function App() {
   let keys = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", 
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
     "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
     "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "]", "{", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "/", "<", ">", "?",
-    "Enter", "BKSP", "Tab", "Esc", "Space", 
+    "Enter", "BKSP", "Tab", "Esc", "Space",
     "Up", "Down", "Left", "Right",
-    "Ctrl", "Alt", "Shift", "Win", 
+    "Ctrl", "Alt", "Shift", "Win",
     "Caps",
   ];
-  
+
   let asciiVals = {
     "A": 65,
     "B": 66,
@@ -125,12 +125,12 @@ function App() {
     "F11": 122,
     "F12": 123
   };
-  
+
   const findVal = (obj, value) => {
     const entry = Object.entries(obj).find(([key, val]) => val === value);
     return entry ? entry[0] : null;
   }
- 
+
   const chunkArray = (array, chunkSize) => {
     const chunks = [];
     for (let i = 0; i < array.length; i += chunkSize) {
@@ -142,28 +142,34 @@ function App() {
   const keyChunks = chunkArray(keys, 4);
   const [message, setMessage] = useState('');
   const [listeningButton, setListeningButton] = useState(null);
-  
-  const restore = getObjectFromCookie("c");
-  const [buttons, setButtons] = useState(restore != null ? restore: [
-    { id:"redButton", bind: "N/A"},
-    { id: "greenButton", bind: "N/A"},
-    {id: "yellowButton", bind: "N/A"},
-    {id: "blueButton", bind: "N/A"},
-    {id: "whiteButton", bind: "N/A"},
+
+  const [moveDirection, setMoveDirection] = useState(null); // Track which direction is pressed
+
+  // Create buttons including arrow buttons
+  const [buttons, setButtons] = useState([
+    { id: "redButton", bind: "N/A" },
+    { id: "greenButton", bind: "N/A" },
+    { id: "yellowButton", bind: "N/A" },
+    { id: "blueButton", bind: "N/A" },
+    { id: "whiteButton", bind: "N/A" },
+    { id: "leftArrow", bind: "<" },
+    { id: "rightArrow", bind: ">" },
+    { id: "downArrow", bind: "v" },
+    { id: "upArrow", bind: "^" },
   ]);
 
-  const createData = () =>{
+  const createData = () => {
     const data = buttons.reduce((acc, button) => {
-      acc[button.id] = button.bind; 
+      acc[button.id] = button.bind;
       return acc;
     }, {});
     return data;
-  }
+  };
 
   const createButtonsJson = () => {
     const data = createData();
     let go = true;
-    data.forEach(([key,val]) => {
+    data.forEach(([key, val]) => {
       if (val === "N/A") {
         go = false;
       }
@@ -173,53 +179,104 @@ function App() {
       const blob = new Blob([jsonData], { type: "application/json" });
       const url = URL.createObjectURL(blob);
 
-
       const a = document.createElement("a");
       a.href = url;
       a.download = "buttons_data.json";
       a.click();
       URL.revokeObjectURL(url);
     }
-    else {
-      console.log("Please fill out all binds!")
-    }
   };
 
   const sendToDevice = async (jsonData) => {
     try {
-        const port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 9600 });
-        const jsonString = JSON.stringify(jsonData);
-        const encoder = new TextEncoder();
-        const writer = port.writable.getWriter();
-        await writer.write(encoder.encode(jsonString));
-        writer.releaseLock();
-        await port.close();
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 9600 });
+      const jsonString = JSON.stringify(jsonData);
+      const encoder = new TextEncoder();
+      const writer = port.writable.getWriter();
+      await writer.write(encoder.encode(jsonString));
+      writer.releaseLock();
+      await port.close();
     } catch (error) {
-        console.error('Error during serial communication:', error);
+      console.error('Error during serial communication:', error);
     }
-}
+  };
 
-const updateButtonBind = (id, newBind) => {
-  setButtons((prevButtons) => {
-    const updatedButtons = prevButtons.map((button) =>
-      button.id === id ? { ...button, bind: asciiVals[newBind] } : button
-    );
-    setObjectAsCookie("c", updatedButtons);
-    return updatedButtons;
-  });
-};
+  const updateButtonBind = (id, newBind) => {
+    setButtons((prevButtons) => {
+      const updatedButtons = prevButtons.map((button) =>
+        button.id === id ? { ...button, bind: asciiVals[newBind] } : button
+      );
+      setObjectAsCookie("c", updatedButtons);
+      return updatedButtons;
+    });
+  };
+
+  // Handle pressing the arrow buttons and update move direction
+  const handleArrowPress = (direction) => {
+    setMoveDirection(direction); // Pass the direction ('left' or 'right') to Joystick
+  };
 
   return (
     <>
-      <MessageContext.Provider value={{createData, sendToDevice,createButtonsJson, message, setMessage }}>
-        <Navbar></Navbar>
-        <div id="topDiv" className=" w-screen h-[50vh] bg-white flex justify-evenly items-center">
-          <div className='flex'>
-            <Joystick></Joystick>
+      <MessageContext.Provider value={{ createData, sendToDevice, createButtonsJson, message, setMessage }}>
+        <Navbar />
+        <div id="topDiv" className="w-screen h-[50vh] bg-white flex justify-evenly items-center">
+          <div className="relative flex flex-col justify-center items-center">
+            {/* Arrow Controls */}
+            <div className="relative flex items-center justify-center" style={{ height: '200px', width: '200px' }}>
+              <Joystick moveDirection={moveDirection} />
+
+              {/* Arrow Buttons Positioned Around Joystick with more spacing */}
+              <div className="absolute" style={{ top: '-30px' }}> {/* Top Arrow with extra space */}
+                <Button
+                  key="upArrow"
+                  id="upArrow"
+                  bind={buttons.find(b => b.id === "upArrow").bind}
+                  isListening={listeningButton === "upArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+
+              <div className="absolute" style={{ bottom: '-30px' }}> {/* Bottom Arrow with extra space */}
+                <Button
+                  key="downArrow"
+                  id="downArrow"
+                  bind={buttons.find(b => b.id === "downArrow").bind}
+                  isListening={listeningButton === "downArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+
+              <div className="absolute" style={{ left: '-30px' }}> {/* Left Arrow with extra space */}
+                <Button
+                  key="leftArrow"
+                  id="leftArrow"
+                  bind={buttons.find(b => b.id === "leftArrow").bind}
+                  isListening={listeningButton === "leftArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+
+              <div className="absolute" style={{ right: '-30px' }}> {/* Right Arrow with extra space */}
+                <Button
+                  key="rightArrow"
+                  id="rightArrow"
+                  bind={buttons.find(b => b.id === "rightArrow").bind}
+                  isListening={listeningButton === "rightArrow"}
+                  setListeningButton={setListeningButton}
+                  updateButtonBind={updateButtonBind}
+                />
+              </div>
+            </div>
           </div>
-          <div className='grid grid-rows-2 grid-cols-3 gap-4'>
-            {buttons.map((button) => (
+
+          <div className='grid grid-rows-2 grid-cols-2 gap-4'>
+            {/* Rendering other keybind buttons */}
+            {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
               <Button
                 key={button.id}
                 id={button.id}
@@ -232,20 +289,18 @@ const updateButtonBind = (id, newBind) => {
           </div>
         </div>
 
-
-        <div className="flex justify-center items-center w-screen h-[50vh] bg-slate-100 space-x-1">
+        <div className="flex justify-center items-center w-screen h-[50vh] bg-slate-300 space-x-1">
           {keyChunks.map((chunk, index) => (
             <div key={index} className="flex flex-col">
               {chunk.map((key) => (
-                <Key label={key}>
-                </Key>
+                <Key label={key} key={key} />
               ))}
             </div>
           ))}
         </div>
-      </MessageContext.Provider>
+      </MessageContext.Provider >
     </>
-  )
+  );
 }
 
-export default App
+export default App;
