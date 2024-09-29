@@ -12,19 +12,9 @@ const Navbar = () => {
         createButtonsJson();
     }
 
-    const handleClick2 = () => {
+     const handleClick2 = () =>{
         const data = createData();
-        let go = true;
-        data.forEach(([key, val]) => {
-            if (val === "N/A") {
-                go = false;
-            }
-        });
-        if (go) {
-            sendToDevice(data);
-        } else {
-            console.log("Please fill out all binds!")
-        }
+        sendToDevice(data);
     }
 
     return (

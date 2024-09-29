@@ -3,8 +3,10 @@ import Button from './components/Button'
 import Joystick from './components/Joystick'
 import Key from './components/Key'
 import MessageContext from './components/MessageContext'
-import { getObjectFromCookie, setObjectAsCookie } from './scripts/cookies'
+import GamepadMode from './components/Gamepad'
 import { useState } from 'react'
+
+let port;
 
 function App() {
   const [styleProps, setStyleProps] = useState({
@@ -181,76 +183,86 @@ function App() {
   const keyChunks = chunkArray(keys, 4);
   const [message, setMessage] = useState('');
   const [listeningButton, setListeningButton] = useState(null);
+  const [gamepadMode, setgamepadMode] = useState(false);
 
-  const [moveDirection, setMoveDirection] = useState(null); // Track which direction is pressed
-  const obj = getObjectFromCookie("c")
   // Create buttons including arrow buttons
-  const [buttons, setButtons] = useState(obj != null ? obj :
-    [{ id: "redButton", bind: "N/A" },
-    { id: "greenButton", bind: "N/A" },
-    { id: "yellowButton", bind: "N/A" },
-    { id: "blueButton", bind: "N/A" },
-    { id: "whiteButton", bind: "N/A" },
-    { id: "leftArrow", bind: 216 },
-    { id: "rightArrow", bind: 215 },
-    { id: "downArrow", bind: 217 },
-    { id: "upArrow", bind: 218 },
+  const [buttons, setButtons] = useState(
+    [{ id: "redButton", bind: 0 },
+    { id: "greenButton", bind: 0},
+    { id: "yellowButton", bind: 0},
+    { id: "blueButton", bind: 0},
+    { id: "whiteButton", bind: 0},
+    { id: "up", bind: 0},
+    { id: "down", bind: 0},
+    { id: "left", bind: 0},
+    { id: "right", bind: 0}
     ]
   );
 
-  const createData = () => {
+  const createData = () =>{
     const data = buttons.reduce((acc, button) => {
-      acc[button.id] = button.bind;
+      acc[button.id] = button.bind; 
       return acc;
     }, {});
+    data.gamepadMode = gamepadMode ? 1 : 0;
+    console.log(data)
     return data;
-  };
+  }
+ 
 
   const createButtonsJson = () => {
     const data = createData();
-    let go = true;
-    data.forEach(([key, val]) => {
-      if (val === "N/A") {
-        go = false;
-      }
-    });
-    if (go) {
-      const jsonData = JSON.stringify(data, null, 2)
-      const blob = new Blob([jsonData], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+    const jsonData = JSON.stringify(data, null, 2)
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "buttons_data.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "buttons_data.json";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const sendToDevice = async (jsonData) => {
     try {
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 9600 });
-      const jsonString = JSON.stringify(jsonData);
+      // If the port hasn't been requested yet, request it
+      if (!port) {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 9600 });
+      } else if (!port.readable || !port.writable) {
+        // If the port exists but isn't open, open it
+        await port.open({ baudRate: 9600 });
+      }
+  
+      const jsonString = JSON.stringify(jsonData) + '\n'; // Ensure newline character
       const encoder = new TextEncoder();
       const writer = port.writable.getWriter();
       await writer.write(encoder.encode(jsonString));
       writer.releaseLock();
-      await port.close();
+      // Do NOT close the port here; keep it open for future communications
     } catch (error) {
       console.error('Error during serial communication:', error);
     }
   };
 
-  const updateButtonBind = (id, newBind) => {
-    setButtons((prevButtons) => {
-      const updatedButtons = prevButtons.map((button) =>
-        button.id === id ? { ...button, bind: asciiVals[newBind] } : button
-      );
-      setObjectAsCookie("c", updatedButtons);
-      return updatedButtons;
-    });
-  };
+
+const updateButtonBind = (id, newBind) => {
+  setButtons((prevButtons) =>
+    prevButtons.map((button) =>
+      button.id === id ? { ...button, bind: asciiVals[newBind] } : button 
+    )
+  );
+};
+
+const updateArrowButtonBind = (id, newBind) => {
+  setarrowButtons((prevArrowButtons) =>
+    prevArrowButtons.map((arrowButton) =>
+      arrowButton.id === id ? { ...arrowButton, bind: asciiVals[newBind] } : arrowButton
+    )
+  );
+};
+
 
 
   return (
@@ -266,35 +278,33 @@ function App() {
               <div className="absolute" style={{ top: '-36px' }}>
                 <Button
                   onClick={handleUpArrowPress}
-                  key="upArrow"
-                  id="upArrow"
-                  bind={findVal(asciiVals, buttons.find(b => b.id === "upArrow").bind)}
-                  isListening={listeningButton === "upArrow"}
+                  key="up"
+                  id="up"
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "up").bind)}
+                  isListening={listeningButton === "up"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
-
-              <div className="absolute" style={{ bottom: '-36px' }}> {/* Bottom Arrow with extra space */}
+              <div className="absolute" style={{ bottom: '-36px' }}>
                 <Button
                   onClick={handleDownArrowPress}
-                  key="downArrow"
-                  id="downArrow"
-                  bind={findVal(asciiVals, buttons.find(b => b.id === "downArrow").bind)}
-                  isListening={listeningButton === "downArrow"}
+                  key="down"
+                  id="down"
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "down").bind)}
+                  isListening={listeningButton === "down"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
-
               <div className="absolute" style={{ left: '-36px' }}> {/* Left Arrow with extra space */}
                 <Button
                   onClick={handleLeftArrowPress}
 
-                  key="leftArrow"
-                  id="leftArrow"
-                  bind={findVal(asciiVals, buttons.find(b => b.id === "leftArrow").bind)}
-                  isListening={listeningButton === "leftArrow"}
+                  key="left"
+                  id="left"
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "left").bind)}
+                  isListening={listeningButton === "left"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
@@ -304,19 +314,23 @@ function App() {
                 <Button
                   onClick={handleRightArrowPress}
 
-                  key="rightArrow"
-                  id="rightArrow"
-                  bind={findVal(asciiVals, buttons.find(b => b.id === "rightArrow").bind)}
-                  isListening={listeningButton === "rightArrow"}
+                  key="right"
+                  id="right"
+                  bind={findVal(asciiVals, buttons.find(b => b.id === "right").bind)}
+                  isListening={listeningButton === "right"}
                   setListeningButton={setListeningButton}
                   updateButtonBind={updateButtonBind}
                 />
               </div>
             </div>
           </div>
-
+          <div className='flex flex-col items-center'>
+          <GamepadMode
+        bind={gamepadMode}
+        toggleGamepadMode={() => setgamepadMode(!gamepadMode)}></GamepadMode>
+          </div>
           <div className='grid grid-rows-2 grid-cols-3 gap-4'>
-            {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
+            {buttons.filter(button => !["left", "right", "down", "up"].includes(button.id)).map((button) => (
               <Button
                 key={button.id}
                 id={button.id}
