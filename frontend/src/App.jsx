@@ -3,6 +3,7 @@ import Button from './components/Button'
 import Joystick from './components/Joystick'
 import Key from './components/Key'
 import MessageContext from './components/MessageContext'
+import { getObjectFromCookie, setObjectAsCookie } from './scripts/cookies'
 import { useState } from 'react'
 
 function App() {
@@ -141,14 +142,15 @@ function App() {
   const keyChunks = chunkArray(keys, 4);
   const [message, setMessage] = useState('');
   const [listeningButton, setListeningButton] = useState(null);
-
-  const [buttons, setButtons] = useState([
+  
+  const restore = getObjectFromCookie("c");
+  const [buttons, setButtons] = useState(restore != null ? restore: [
     { id:"redButton", bind: "N/A"},
     { id: "greenButton", bind: "N/A"},
     {id: "yellowButton", bind: "N/A"},
     {id: "blueButton", bind: "N/A"},
     {id: "whiteButton", bind: "N/A"},
-  ])
+  ]);
 
   const createData = () =>{
     const data = buttons.reduce((acc, button) => {
@@ -160,16 +162,27 @@ function App() {
 
   const createButtonsJson = () => {
     const data = createData();
-    const jsonData = JSON.stringify(data, null, 2)
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+    let go = true;
+    data.forEach(([key,val]) => {
+      if (val === "N/A") {
+        go = false;
+      }
+    });
+    if (go) {
+      const jsonData = JSON.stringify(data, null, 2)
+      const blob = new Blob([jsonData], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
 
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "buttons_data.json";
-    a.click();
-    URL.revokeObjectURL(url);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "buttons_data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    else {
+      console.log("Please fill out all binds!")
+    }
   };
 
   const sendToDevice = async (jsonData) => {
@@ -187,13 +200,15 @@ function App() {
     }
 }
 
-  const updateButtonBind = (id, newBind) => {
-    setButtons((prevButtons) =>
-      prevButtons.map((button) =>
-        button.id === id ? { ...button, bind: asciiVals[newBind] } : button 
-      )
+const updateButtonBind = (id, newBind) => {
+  setButtons((prevButtons) => {
+    const updatedButtons = prevButtons.map((button) =>
+      button.id === id ? { ...button, bind: asciiVals[newBind] } : button
     );
-  };
+    setObjectAsCookie("c", updatedButtons);
+    return updatedButtons;
+  });
+};
 
   return (
     <>
