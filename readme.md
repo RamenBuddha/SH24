@@ -1,12 +1,3 @@
-### Build and run Arduino code
-```
-cd arduino_prog
-pio run -e micro -t upload
-```
-Here’s a more concise and structured README for your React app:
-
----
-
 # OpenController
 
 Offering an affordable, open way for people with disabilities to enjoy the games they love.
@@ -33,6 +24,11 @@ Offering an affordable, open way for people with disabilities to enjoy the games
    ```bash
    npm install
    ```
+### Build and run Arduino code
+```
+cd arduino_prog
+pio run -e micro -t upload
+```
 
 ## Usage
 
