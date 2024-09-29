@@ -21,13 +21,19 @@ function App() {
   const [listeningButton, setListeningButton] = useState(null);
 
   const [buttons, setButtons] = useState([
-    { id:1, bind: "N/A"},
-    { id: 2, bind: "N/A"},
-    {id: 3, bind: "N/A"}
+    { id:"redButton", bind: "N/A"},
+    { id: "greenButton", bind: "N/A"},
+    {id: "yellowButton", bind: "N/A"},
+    {id: "blueButton", bind: "N/A"},
+    {id: "whiteButton", bind: "N/A"},
   ])
 
   const createButtonsJson = () => {
-    const jsonData = JSON.stringify(buttons, null, 2);
+    const data = buttons.reduce((acc, button) => {
+      acc[button.id] = button.bind; 
+      return acc;
+    }, {});
+    const jsonData = JSON.stringify(data, null, 2)
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
@@ -42,7 +48,7 @@ function App() {
   const updateButtonBind = (id, newBind) => {
     setButtons((prevButtons) =>
       prevButtons.map((button) =>
-        button.id === id ? { ...button, bind: newBind } : button
+        button.id === id ? { ...button, bind: newBind.charCodeAt(0) } : button 
       )
     );
   };
@@ -55,12 +61,12 @@ function App() {
           <div className='flex'>
             <Joystick></Joystick>
           </div>
-          <div className='grid grid-rows-2 grid-cols-2 gap-4'>
+          <div className='grid grid-rows-2 grid-cols-3 gap-4'>
             {buttons.map((button) => (
               <Button
                 key={button.id}
                 id={button.id}
-                bind={button.bind}
+                bind={String.fromCharCode(button.bind)}
                 isListening={listeningButton === button.id}
                 setListeningButton={setListeningButton}
                 updateButtonBind={updateButtonBind}
