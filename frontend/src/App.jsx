@@ -7,6 +7,45 @@ import { getObjectFromCookie, setObjectAsCookie } from './scripts/cookies'
 import { useState } from 'react'
 
 function App() {
+  const [styleProps, setStyleProps] = useState({
+    right: '0px',
+    top: '32px',
+    left: '31px',
+    bottom: '0px',
+  });
+
+  const handleDownArrowPress = () => {
+    setStyleProps({
+      right: '0px',
+      top: '70px',
+      left: '31px',
+      bottom: '0px'
+    });
+  };
+  const handleUpArrowPress = () => {
+    setStyleProps({
+      right: '0px',
+      top: '-5px',
+      left: '31px',
+      bottom: '0px'
+    });
+  };
+  const handleLeftArrowPress = () => {
+    setStyleProps({
+      right: '0px',
+      top: '32px',
+      left: '-5px',
+      bottom: '0px'
+    });
+  };
+  const handleRightArrowPress = () => {
+    setStyleProps({
+      right: '0px',
+      top: '32px',
+      left: '70px',
+      bottom: '0px'
+    });
+  };
   let keys = [
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
@@ -146,7 +185,7 @@ function App() {
   const [moveDirection, setMoveDirection] = useState(null); // Track which direction is pressed
   const obj = getObjectFromCookie("c")
   // Create buttons including arrow buttons
-  const [buttons, setButtons] = useState(obj != null? obj:
+  const [buttons, setButtons] = useState(obj != null ? obj :
     [{ id: "redButton", bind: "N/A" },
     { id: "greenButton", bind: "N/A" },
     { id: "yellowButton", bind: "N/A" },
@@ -156,8 +195,8 @@ function App() {
     { id: "rightArrow", bind: 215 },
     { id: "downArrow", bind: 217 },
     { id: "upArrow", bind: 218 },
-  ]
-    );
+    ]
+  );
 
   const createData = () => {
     const data = buttons.reduce((acc, button) => {
@@ -213,10 +252,6 @@ function App() {
     });
   };
 
-  // Handle pressing the arrow buttons and update move direction
-  const handleArrowPress = (direction) => {
-    setMoveDirection(direction); // Pass the direction ('left' or 'right') to Joystick
-  };
 
   return (
     <>
@@ -226,9 +261,11 @@ function App() {
           <div className="relative flex flex-col justify-center items-center">
             {/* Arrow Controls */}
             <div className="relative flex items-center justify-center" style={{ height: '200px', width: '200px' }}>
+              <Joystick styleProps={styleProps}></Joystick>
               {/* Arrow Buttons Positioned Around Joystick with more spacing */}
-              <div className="absolute" style={{ top: '-10px' }}> {/* Top Arrow with extra space */}
+              <div className="absolute" style={{ top: '-36px' }}>
                 <Button
+                  onClick={handleUpArrowPress}
                   key="upArrow"
                   id="upArrow"
                   bind={findVal(asciiVals, buttons.find(b => b.id === "upArrow").bind)}
@@ -238,8 +275,9 @@ function App() {
                 />
               </div>
 
-              <div className="absolute" style={{ bottom: '-10px' }}> {/* Bottom Arrow with extra space */}
+              <div className="absolute" style={{ bottom: '-36px' }}> {/* Bottom Arrow with extra space */}
                 <Button
+                  onClick={handleDownArrowPress}
                   key="downArrow"
                   id="downArrow"
                   bind={findVal(asciiVals, buttons.find(b => b.id === "downArrow").bind)}
@@ -249,8 +287,10 @@ function App() {
                 />
               </div>
 
-              <div className="absolute" style={{ left: '-10px' }}> {/* Left Arrow with extra space */}
+              <div className="absolute" style={{ left: '-36px' }}> {/* Left Arrow with extra space */}
                 <Button
+                  onClick={handleLeftArrowPress}
+
                   key="leftArrow"
                   id="leftArrow"
                   bind={findVal(asciiVals, buttons.find(b => b.id === "leftArrow").bind)}
@@ -260,8 +300,10 @@ function App() {
                 />
               </div>
 
-              <div className="absolute" style={{ right: '-10px' }}> {/* Right Arrow with extra space */}
+              <div className="absolute" style={{ right: '-36px' }}> {/* Right Arrow with extra space */}
                 <Button
+                  onClick={handleRightArrowPress}
+
                   key="rightArrow"
                   id="rightArrow"
                   bind={findVal(asciiVals, buttons.find(b => b.id === "rightArrow").bind)}
@@ -274,7 +316,6 @@ function App() {
           </div>
 
           <div className='grid grid-rows-2 grid-cols-3 gap-4'>
-            {/* Rendering other keybind buttons */}
             {buttons.filter(button => !["leftArrow", "rightArrow", "downArrow", "upArrow"].includes(button.id)).map((button) => (
               <Button
                 key={button.id}
